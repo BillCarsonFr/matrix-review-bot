@@ -17,6 +17,8 @@ Reviews are scraped from the stores using:
 Checkout this project and then install with npm
 
 ````
+git clone https://github.com/BillCarsonFr/matrix-review-bot.git
+cd matrix-review-bot
 npm install
 ````
 
