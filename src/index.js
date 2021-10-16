@@ -43,9 +43,9 @@ client.on("room.invite", (roomId, inviteEvent) => {
         config.watchedApps.forEach(element => {
             console.log("## Configure for " + element)
             if (element.type == "android") {
-                watchPlaystoreReviews(roomId, element.appId, config.skipFirstLoad)
+                watchPlaystoreReviews(roomId, element.appId, element.language, config.skipFirstLoad)
             } else if (element.type == "ios") {
-                watchAppleReviews(roomId, element.appId, config.skipFirstLoad)
+                watchAppleReviews(roomId, element.appId, element.language, config.skipFirstLoad)
             }
         })
 
@@ -77,11 +77,11 @@ client.getJoinedRooms().then(function(joinedRoomIds) {
             // bot already in that room, let's start the emitters
             let roomConfig = botConfig.rooms[roomId]
             roomConfig.watchedApps.forEach(element => {
-                console.log("## Configure for " + element)
+                console.log("## Configure for " + JSON.stringify(element))
                 if (element.type == "android") {
-                    watchPlaystoreReviews(roomId, element.appId, roomConfig.skipFirstLoad)
+                    watchPlaystoreReviews(roomId, element.appId, element.language, roomConfig.skipFirstLoad)
                 } else if (element.type == "ios") {
-                    watchAppleReviews(roomId, element.appId, roomConfig.skipFirstLoad)
+                    watchAppleReviews(roomId, element.appId, element.language, roomConfig.skipFirstLoad)
                 }
             })
         }
@@ -144,21 +144,17 @@ async function handleCommand(roomId, event) {
     }
 }
 
-function watchAppleReviews(roomId, id, skipFirstLoad) {
+function watchAppleReviews(roomId, id, language, skipFirstLoad) {
     const feeder = new RssFeedEmitter({skipFirstLoad});
 
-    feeder.add({
-        url: `https://itunes.apple.com/us/rss/customerreviews/id=${id}/sortBy=mostRecent/xml`,
-        refresh: 60000
-    });
-    feeder.add({
-        url: `https://itunes.apple.com/fr/rss/customerreviews/id=${id}/sortBy=mostRecent/xml`,
-        refresh: 60000
-    });
-    feeder.add({
-        url: `https://itunes.apple.com/de/rss/customerreviews/id=${id}/sortBy=mostRecent/xml`,
-        refresh: 60000
-    });
+        
+    language.forEach(code => {
+        let split = code.split("-")
+        feeder.add({
+            url: `https://itunes.apple.com/${split[0]}/rss/customerreviews/id=${id}/sortBy=mostRecent/xml`,
+            refresh: 60000
+        });
+    })
 
     feeder.on('new-item', function(item) {
         console.log("On New Item :\n" +  JSON.stringify(item))
@@ -168,29 +164,20 @@ function watchAppleReviews(roomId, id, skipFirstLoad) {
     feeder.on('error', console.error);
 }
 
-function watchPlaystoreReviews(roomId, appId, skipFirstLoad) {
+function watchPlaystoreReviews(roomId, appId, language, skipFirstLoad) {
 
     const feeder = new AndroidFeedEmitter({skipFirstLoad});
     
-    feeder.add({
-        appId: appId,
-        country: 'us',
-        lang: 'en',
-        refresh: 60000
-    });
-    feeder.add({
-        appId: appId,
-        country: 'fr',
-        lang: 'fr',
-        refresh: 60000
-    });
-    feeder.add({
-        appId: appId,
-        country: 'de',
-        lang: 'de',
-        refresh: 60000
-    });
-    
+    language.forEach(code => {
+        let split = code.split("-")
+        feeder.add({
+            appId: appId,
+            country: split[0],
+            lang: split[1],
+            refresh: 60000
+        });
+    })
+
     feeder.on('new-item', function(item) {
         console.log("On New android Item " +  JSON.stringify(item))
         client.sendHtmlNotice(roomId, androidTemplate.richText(item))

@@ -9,11 +9,13 @@
             "watchedApps" : [
                 {
                     "type" : "android",
-                    "appId" : "com.example.myapp"
+                    "appId" : "com.example.myapp",
+                    "language": ["us-en","fr-fr","de-de"]
                 },
                 {
                     "type" : "ios",
-                    "appId" : "9digitsId"
+                    "appId" : "9digitsId",
+                    "language": ["us","fr","de"]
                 }
             ]
         },
@@ -22,11 +24,13 @@
             "watchedApps" : [
                 {
                     "type" : "android",
-                    "appId" : "com.example.myapp"
+                    "appId" : "com.example.myapp",
+                    "language": ["us-en","fr-fr","de-de"]
                 },
                 {
                     "type" : "ios",
-                    "appId" : "9digitsId"
+                    "appId" : "9digitsId",
+                    "language": ["us","fr","de"]
                 }
             ]
         }

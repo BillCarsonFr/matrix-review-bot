@@ -23,7 +23,6 @@ class PlaystoreReviewFeed {
             country: this.country, lang: this.lang
           } = data);
 
-          console.log("CONFIG COUNTRY " + this.country)
           if (!this.items) this.items = [];
           if (!this.appId) throw new TypeError('missing required field `appId`');
           if (!this.refresh) this.refresh = 60000;

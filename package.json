@@ -1,6 +1,6 @@
 {
   "name": "appstore-review-bot",
-  "version": "1.0.0",
+  "version": "0.9",
   "description": "App Store review matrix bot",
   "main": "index.js",
   "scripts": {
