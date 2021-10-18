@@ -3,7 +3,7 @@
 
 A nodejs Matrix bot to track your application reviews in real time.
 
-Based on https://github.com/turt2live/matrix-bot-sdk
+Based on [matrix-bot-sdk](https://github.com/turt2live/matrix-bot-sdk)
 
 Reviews are scraped from the stores using:
 - [google-play-scraper](https://github.com/facundoolano/google-play-scraper) for google reviews
