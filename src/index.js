@@ -43,9 +43,9 @@ client.on("room.invite", (roomId, inviteEvent) => {
         config.watchedApps.forEach(element => {
             console.log("## Configure for " + element)
             if (element.type == "android") {
-                watchPlaystoreReviews(roomId, element.appId, element.language, config.skipFirstLoad)
+                watchPlaystoreReviews(roomId, element, config.skipFirstLoad)
             } else if (element.type == "ios") {
-                watchAppleReviews(roomId, element.appId, element.language, config.skipFirstLoad)
+                watchAppleReviews(roomId, element, config.skipFirstLoa)
             }
         })
 
@@ -79,9 +79,9 @@ client.getJoinedRooms().then(function(joinedRoomIds) {
             roomConfig.watchedApps.forEach(element => {
                 console.log("## Configure for " + JSON.stringify(element))
                 if (element.type == "android") {
-                    watchPlaystoreReviews(roomId, element.appId, element.language, roomConfig.skipFirstLoad)
+                    watchPlaystoreReviews(roomId, element, roomConfig.skipFirstLoad)
                 } else if (element.type == "ios") {
-                    watchAppleReviews(roomId, element.appId, element.language, roomConfig.skipFirstLoad)
+                    watchAppleReviews(roomId, element, roomConfig.skipFirstLoad)
                 }
             })
         }
@@ -124,13 +124,11 @@ async function handleCommand(roomId, event) {
             let config = botConfig.rooms[roomId]
             config.watchedApps.forEach(element => {
                 if (element.type == "android") {
-                    emitLatestAndroid(roomId, element.appId)
+                    emitLatestAndroid(roomId, element.appId, element.title_prefix)
                 } else if (element.type == "ios") {
-                    emitLatestIos(roomId, element.appId)
+                    emitLatestIos(roomId, element.appId, element.title_prefix)
                 }
             })
-            emitLatestAndroid(roomId)
-            emitLatestIos(roomId)
         }
     } catch (e) {
         // Log the error
@@ -144,28 +142,29 @@ async function handleCommand(roomId, event) {
     }
 }
 
-function watchAppleReviews(roomId, id, language, skipFirstLoad) {
+function watchAppleReviews(roomId, element, skipFirstLoad) {
     const feeder = new RssFeedEmitter({skipFirstLoad});
-
+    const {appId, language, title_prefix} = element
         
     language.forEach(code => {
         let split = code.split("-")
+        // TODO add a quick check to see if country code ok
         feeder.add({
-            url: `https://itunes.apple.com/${split[0]}/rss/customerreviews/id=${id}/sortBy=mostRecent/xml`,
+            url: `https://itunes.apple.com/${split[0]}/rss/customerreviews/id=${appId}/sortBy=mostRecent/xml`,
             refresh: 60000
         });
     })
 
     feeder.on('new-item', function(item) {
         console.log("On New Item :\n" +  JSON.stringify(item))
-        client.sendHtmlNotice(roomId, appleTemplate.richText(item))
+        client.sendHtmlNotice(roomId, appleTemplate.richText(title_prefix, item))
         //console.log(appleTemplate.richText(item));
     })
     feeder.on('error', console.error);
 }
 
-function watchPlaystoreReviews(roomId, appId, language, skipFirstLoad) {
-
+function watchPlaystoreReviews(roomId, element, skipFirstLoad) {
+    const { appId, language, title_prefix} = element;
     const feeder = new AndroidFeedEmitter({skipFirstLoad});
     
     language.forEach(code => {
@@ -180,13 +179,13 @@ function watchPlaystoreReviews(roomId, appId, language, skipFirstLoad) {
 
     feeder.on('new-item', function(item) {
         console.log("On New android Item " +  JSON.stringify(item))
-        client.sendHtmlNotice(roomId, androidTemplate.richText(item))
+        client.sendHtmlNotice(roomId, androidTemplate.richText(title_prefix, item))
         //console.log(androidTemplate.richText(item));
     })
     feeder.on('error', console.error);
 }
 
-function emitLatestIos(roomId, appId) { 
+function emitLatestIos(roomId, appId, title) { 
     let Parser = require('rss-parser');
     let parser = new Parser();
 
@@ -196,13 +195,13 @@ function emitLatestIos(roomId, appId) {
 
     feed.items.slice(0, 1).forEach(item => {
         console.log("On New apple Item")
-        client.sendHtmlNotice(roomId, appleTemplate.richTextTest(item))
+        client.sendHtmlNotice(roomId, appleTemplate.richTextTest(title, item))
     });
 
     })();
 }
   
-function emitLatestAndroid(roomId, appId) { 
+function emitLatestAndroid(roomId, appId, title) { 
 
     gplay.reviews({
         appId: appId,
@@ -211,7 +210,7 @@ function emitLatestAndroid(roomId, appId) {
       }).then( function (resp) {
           resp.data.forEach(element => {
             //console.log("scrap: " + JSON.stringify(element))
-            client.sendHtmlNotice(roomId, androidTemplate.richText(element))
+            client.sendHtmlNotice(roomId, androidTemplate.richText(title, element))
           });
       }, function (err) {
           console.log("Error: " + err)

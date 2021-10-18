@@ -5,8 +5,8 @@ var PlaystoreTemplate = function () {};
 const dateSrcFormat = "YYYY-MM-DDTHH:mm:ss.SSS"
 const dateDisplayFormat = "dddd, MMMM Do YYYY, h:mm:ss a"
 
-PlaystoreTemplate.prototype.richText = function (scrap) {
-    return `<b>[New Element Android Review]</b>\n
+PlaystoreTemplate.prototype.richText = function (title, scrap) {
+    return `<b>${title}</b>\n
     <p>👤 ${scrap.userName}<br>
     v: <code>${scrap.version}</code><br>
     ${ratingUtils.ratingToStartString(parseInt(scrap.score))}</p>

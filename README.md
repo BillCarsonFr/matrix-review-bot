@@ -49,11 +49,13 @@ Then add a new section in the config file for that room.
             "skipFirstLoad" : true,
             "watchedApps" : [
                 {
+                    "title_prefix" : "[New Android Review]",
                     "type" : "android",
                     "appId" : "com.example.myapp",
                     "language": ["us-en","fr-fr","de-de"]
                 },
                 {
+                    "title_prefix" : "[New iOS Review]",
                     "type" : "ios",
                     "appId" : "9digitsId",
                     "language": ["us","fr","de"]
